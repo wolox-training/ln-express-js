@@ -15,7 +15,8 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       unique: true,
       validate: {
-        isEmail: true
+        isEmail: true,
+        is: /^.+@wolox(\.com\.ar|\.co)$/i
       }
     },
     password: {
@@ -28,7 +29,14 @@ module.exports = (sequelize, DataTypes) => {
   User.getById = id => {
     return User.findOne({ where: { id } }).catch(err => {
       // TODO: Create database error
-      throw Error('Invalid ID');
+      throw Error(err.message);
+    });
+  };
+
+  User.createUser = user => {
+    return User.create(user).catch(err => {
+      // TODO: New User error
+      throw Error(err.message);
     });
   };
 
