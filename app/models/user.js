@@ -1,4 +1,5 @@
-const errors = require('../errors');
+const errors = require('../errors'),
+  bcrypt = require('bcryptjs');
 
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('user', {
@@ -34,10 +35,25 @@ module.exports = (sequelize, DataTypes) => {
   };
 
   User.createUser = user => {
-    return User.create(user).catch(err => {
-      // TODO: New User error
-      throw Error(err.message);
-    });
+    if (/^([a-z0-9]{8,})$/.test(user.password)) {
+      const salt = 10;
+      return bcrypt
+        .hash(user.password, salt)
+        .then(hash => {
+          user.password = hash;
+          User.create(user).catch(err => {
+            // TODO: New User error
+            throw Error(err.message);
+          });
+        })
+        .catch(err => {
+          // TODO: New User error
+          throw Error(err.message);
+        });
+    } else {
+      // TODO: Password not valid error
+      throw Error('password not valid');
+    }
   };
 
   return User;
