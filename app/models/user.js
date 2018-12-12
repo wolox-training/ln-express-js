@@ -29,8 +29,7 @@ module.exports = (sequelize, DataTypes) => {
 
   User.getById = id => {
     return User.findOne({ where: { id } }).catch(err => {
-      // TODO: Create database error
-      throw Error(err.message);
+      throw errors.databaseError(err.detail);
     });
   };
 
@@ -42,17 +41,14 @@ module.exports = (sequelize, DataTypes) => {
         .then(hash => {
           user.password = hash;
           User.create(user).catch(err => {
-            // TODO: New User error
-            throw Error(err.message);
+            throw errors.savingError(err.errors);
           });
         })
         .catch(err => {
-          // TODO: New User error
-          throw Error(err.message);
+          throw errors.defaultError(err);
         });
     } else {
-      // TODO: Password not valid error
-      throw Error('password not valid');
+      throw errors.defaultError('Password does not meet the requirements');
     }
   };
 
