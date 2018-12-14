@@ -28,6 +28,11 @@ module.exports = (sequelize, DataTypes) => {
 
   User.associate = function(models) {};
 
+  User.createModel = user => {
+    return User.create(user).catch(err => {
+      throw errors.savingError(err.errors);
+    });
+  };
   User.getById = id => {
     return User.findOne({ where: { id } }).catch(err => {
       throw errors.databaseError(err.detail);
@@ -44,22 +49,16 @@ module.exports = (sequelize, DataTypes) => {
       .hash(user.password, salt)
       .then(hash => {
         user.password = hash;
-        User.create(user)
+        return User.create(user)
           .then(res => {
             logger.info('User created');
           })
           .catch(err => {
             throw errors.invalidEmail;
-          })
-          .catch(err => {
-            logger.error(err);
           });
       })
       .catch(err => {
-        throw errors.defaultError('Error Bcrypt');
-      })
-      .catch(err => {
-        logger.error(err);
+        throw errors.encryptionError(err.message);
       });
   };
 

@@ -9,6 +9,9 @@ exports.invalidEmail = internalError(
   exports.INVALID_EMAIL
 );
 
+exports.ENCRYPTION_ERROR = 'encryption_error';
+exports.encryptionError = message => internalError(message, exports.ENCRYPTION_ERROR);
+
 exports.INVALID_USER = 'invalid_user';
 exports.invalidUser = internalError('Invalid username or password', exports.INVALID_USER);
 

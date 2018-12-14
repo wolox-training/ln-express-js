@@ -4,6 +4,8 @@ const errors = require('../errors'),
 const DEFAULT_STATUS_CODE = 500;
 
 const statusCodes = {
+  [errors.INVALID_EMAIL]: 400,
+  [errors.ENCRYPTION_ERROR]: 500,
   [errors.INVALID_USER]: 400,
   [errors.BOOK_NOT_FOUND]: 404,
   [errors.SAVING_ERROR]: 400,
