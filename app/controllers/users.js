@@ -12,7 +12,7 @@ exports.create = (req, res, next) => {
   User.createUser(user)
     .then(response => {
       res.status(201);
-      res.end();
+      res.send();
     })
     .catch(next);
 };
