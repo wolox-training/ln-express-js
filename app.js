@@ -10,7 +10,8 @@ const express = require('express'),
   migrationsManager = require('./migrations'),
   logger = require('./app/logger'),
   DEFAULT_BODY_SIZE_LIMIT = 1024 * 1024 * 10,
-  DEFAULT_PARAMETER_LIMIT = 10000;
+  DEFAULT_PARAMETER_LIMIT = 10000,
+  validator = require('express-validator');
 
 const bodyParserJsonConfig = () => ({
   parameterLimit: config.common.api.parameterLimit || DEFAULT_PARAMETER_LIMIT,
@@ -53,7 +54,7 @@ const init = () => {
     })
     .then(() => {
       routes.init(app);
-
+      app.use(validator());
       app.use(errors.handle);
 
       const rollbar = new Rollbar({

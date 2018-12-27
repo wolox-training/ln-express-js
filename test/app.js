@@ -19,7 +19,12 @@ beforeEach('drop tables, re-create them and populate sample data', done => {
         return `"public"."${table[0]}"`;
       })
       .join(', ');
-    return models.sequelize.query(`TRUNCATE TABLE ${tableExpression} RESTART IDENTITY`).then(() => done());
+    return models.sequelize
+      .query(`TRUNCATE TABLE ${tableExpression} RESTART IDENTITY`)
+      .then(() => {
+        return dataCreation.execute();
+      })
+      .then(() => done());
   });
 });
 
