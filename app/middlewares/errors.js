@@ -7,6 +7,7 @@ const statusCodes = {
   [errors.INVALID_EMAIL]: 400,
   [errors.PASSWORD_ERROR]: 400,
   [errors.MISSING_PARAMETERS]: 400,
+  [errors.INVALID_PARAMETERS]: 400,
   [errors.ENCRYPTION_ERROR]: 500,
   [errors.INVALID_USER]: 400,
   [errors.BOOK_NOT_FOUND]: 404,

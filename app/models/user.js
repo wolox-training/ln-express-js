@@ -32,6 +32,11 @@ module.exports = (sequelize, DataTypes) => {
       throw errors.databaseError(err.detail);
     });
   };
+  User.getAll = (limit = 10, offset = 0) => {
+    return User.findAll({ limit, offset }).catch(err => {
+      throw errors.databaseError(err.detail);
+    });
+  };
   User.getOne = email => {
     return User.findOne({ where: email }).catch(err => {
       throw errors.databaseError(err.detail);

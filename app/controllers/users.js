@@ -59,3 +59,16 @@ exports.login = (req, res, next) => {
     }
   });
 };
+
+exports.getAll = (req, res, next) => {
+  const searchParameters = req.query
+    ? {
+        limit: req.query.limit,
+        offset: req.query.offset
+      }
+    : {};
+  return User.getAll(searchParameters.limit, searchParameters.offset).then(response => {
+    res.status(200);
+    res.send(response);
+  });
+};

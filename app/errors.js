@@ -14,6 +14,10 @@ exports.MISSING_PARAMETERS = 'missing_parameters';
 exports.missingParameters = (message = 'Required parameters are missing') =>
   internalError(message, exports.MISSING_PARAMETERS);
 
+exports.INVALID_PARAMETERS = 'invalid_parameters';
+exports.invalidParameters = (message = 'parameters are invalid') =>
+  internalError(message, exports.INVALID_PARAMETERS);
+
 exports.USER_NOT_FOUND = 'user_not_found';
 exports.userNotFound = (message = 'User not found') => internalError(message, exports.USER_NOT_FOUND);
 

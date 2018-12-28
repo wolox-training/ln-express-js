@@ -4,6 +4,6 @@ const users = require('./controllers/users'),
 
 exports.init = app => {
   app.post('/users', validation.validateSignup, validation.validateResults, users.create);
-  app.get('/users', users.getByEmail);
+  app.get('/users', validation.validateGetUsers, validation.validateResults, users.getAll);
   app.post('/users/sessions', validation.validateSignin, validation.validateResults, users.login);
 };
