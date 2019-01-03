@@ -53,6 +53,17 @@ exports.validateSignin = [
     .withMessage(errors.missingParameters('Password is missing.'))
 ];
 
+exports.validateGetUsers = [
+  check('limit')
+    .optional()
+    .isInt({ gt: 0 })
+    .withMessage(errors.invalidParameters('Limit must be an integer greater than 0.')),
+  check('offset')
+    .optional()
+    .isInt({ gt: -1 })
+    .withMessage(errors.invalidParameters('Offset must be an integer greater or equal to 0'))
+];
+
 exports.validateResults = (...validations) => {
   const allValidations = validations.reduce((accum, value) => [...accum, ...value]);
   const validationsAndResult = allValidations.concat([
