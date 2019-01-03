@@ -64,12 +64,17 @@ exports.validateGetUsers = [
     .withMessage(errors.invalidParameters('Offset must be greater or equal to 0'))
 ];
 
-exports.validateResults = (req, res, next) => {
-  const valErrors = validationResult(req);
-  if (!valErrors.isEmpty()) {
-    const firstError = valErrors.array()[0].msg;
-    throw firstError;
-  } else {
-    next();
-  }
+exports.validateResults = (...validations) => {
+  const allValidations = validations.reduce((accum, value) => [...accum, ...value]);
+  const validationsAndResult = allValidations.concat([
+    (req, res, next) => {
+      const valErrors = validationResult(req);
+      if (!valErrors.isEmpty()) {
+        return res.json({ errors: valErrors.array() });
+      } else {
+        next();
+      }
+    }
+  ]);
+  return validationsAndResult;
 };

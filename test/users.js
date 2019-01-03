@@ -36,7 +36,7 @@ describe('/users POST', () => {
       .then(() => done());
   });
   it('registration should fail because password does not meet requirements', done => {
-    const userWithPasswordNotMeetingRequirements = {
+    const userWithInvalidPassword = {
       firstName: 'John',
       lastName: 'Smith',
       email: 'john.smith3@wolox.com.ar',
@@ -45,7 +45,7 @@ describe('/users POST', () => {
     chai
       .request(server)
       .post('/users')
-      .send(userWithPasswordNotMeetingRequirements)
+      .send(userWithInvalidPassword)
       .catch(err => {
         err.should.have.status(400);
         err.response.should.be.json;
