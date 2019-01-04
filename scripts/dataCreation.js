@@ -1,6 +1,6 @@
 const User = require('../app/models').user;
 
-exports.execute = () => {
+exports.execute = async () => {
   const data = [];
   for (let i = 1; i <= 3; i++) {
     // eslint-disable-next-line prefer-const
@@ -10,7 +10,8 @@ exports.execute = () => {
       email: `email${i}@wolox.com.ar`,
       password: `wolox1189`
     };
-    data.push(User.createUser(user));
+    // eslint-disable-next-line no-await-in-loop
+    data.push(await User.createUser(user));
   }
   return Promise.all(data);
 };

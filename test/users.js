@@ -183,3 +183,84 @@ describe('/user/sessions POST', () => {
       .then(() => done());
   });
 });
+
+describe('/users GET', () => {
+  it('user list without parameters should be successful', done => {
+    successfulLogin()
+      .then(loginRes => {
+        return chai
+          .request(server)
+          .get('/users')
+          .set(sessionManager.HEADER_NAME, loginRes.headers[sessionManager.HEADER_NAME])
+          .then(res => {
+            res.should.have.status(200);
+            res.should.be.json;
+            res.body.should.be.a('array');
+            res.body[0].should.have.property('id');
+            res.body[0].should.have.property('firstName');
+            res.body[0].should.have.property('lastName');
+            res.body[0].should.have.property('email');
+            res.body[0].should.have.property('password');
+            dictum.chai(res);
+          });
+      })
+      .then(() => done());
+  });
+  it('user list with limit parameter should be successful', done => {
+    successfulLogin()
+      .then(loginRes => {
+        return chai
+          .request(server)
+          .get('/users?limit=2')
+          .set(sessionManager.HEADER_NAME, loginRes.headers[sessionManager.HEADER_NAME])
+          .then(res => {
+            res.should.have.status(200);
+            res.should.be.json;
+            res.body.should.be.a('array');
+            res.body[0].should.have.property('id');
+            res.body[0].should.have.property('firstName');
+            res.body[0].should.have.property('lastName');
+            res.body[0].should.have.property('email');
+            res.body[0].should.have.property('password');
+            assert(res.body.length === 2, 'length of array is 2');
+            dictum.chai(res);
+          });
+      })
+      .then(() => done());
+  });
+  it('user list with limit and offset parameters should be successful', done => {
+    successfulLogin()
+      .then(loginRes => {
+        return chai
+          .request(server)
+          .get('/users?limit=1&offset=2')
+          .set(sessionManager.HEADER_NAME, loginRes.headers[sessionManager.HEADER_NAME])
+          .then(res => {
+            res.should.have.status(200);
+            res.should.be.json;
+            res.body.should.be.a('array');
+            res.body[0].should.have.property('id', 3);
+            res.body[0].should.have.property('firstName');
+            res.body[0].should.have.property('lastName');
+            res.body[0].should.have.property('email');
+            res.body[0].should.have.property('password');
+            assert(res.body.length === 1, 'length of array is 1');
+            dictum.chai(res);
+          });
+      })
+      .then(() => done());
+  });
+  it('user list with invalid limit (string) should fail', done => {
+    successfulLogin().then(loginRes => {
+      return chai
+        .request(server)
+        .get('/users?limit=invalid')
+        .set(sessionManager.HEADER_NAME, loginRes.headers[sessionManager.HEADER_NAME])
+        .catch(err => {
+          err.should.have.status(200);
+          err.response.should.be.json;
+        })
+        .then(() => done());
+    });
+  });
+});
