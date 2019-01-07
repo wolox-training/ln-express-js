@@ -3,6 +3,10 @@ const internalError = (message, internalCode) => ({
   internalCode
 });
 
+exports.UNAUTHORIZED = 'unauthorized';
+exports.unauthorized = (message = 'You are not authorized to consume this resource.') =>
+  internalError(message, exports.UNAUTHORIZED);
+
 exports.INVALID_EMAIL = 'invalid_email';
 exports.invalidEmail = (message = 'Invalid email, may be repeated or not belonging to a Wolox domain') =>
   internalError(message, exports.INVALID_EMAIL);
