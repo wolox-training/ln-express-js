@@ -59,7 +59,7 @@ module.exports = (sequelize, DataTypes) => {
       .hash(user.password, salt)
       .then(hash => {
         user.password = hash;
-        return User.create(user)
+        return User.upsert(user)
           .then(res => {
             logger.info(`User ${user.email} created`);
           })

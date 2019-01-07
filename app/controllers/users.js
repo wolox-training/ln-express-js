@@ -11,7 +11,25 @@ exports.create = (req, res, next) => {
         lastName: req.body.lastName,
         email: req.body.email,
         password: req.body.password,
-        isAdmin: req.body.isAdmin
+        isAdmin: false
+      }
+    : {};
+  User.createUser(user)
+    .then(response => {
+      res.status(201);
+      res.send();
+    })
+    .catch(next);
+};
+
+exports.createAdmin = (req, res, next) => {
+  const user = req.body
+    ? {
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        email: req.body.email,
+        password: req.body.password,
+        isAdmin: true
       }
     : {};
   User.createUser(user)

@@ -20,3 +20,11 @@ exports.secure = (req, res, next) => {
     throw errors.unauthorized();
   }
 };
+
+exports.checkAdmin = (req, res, next) => {
+  if (req.user.isAdmin) {
+    next();
+  } else {
+    throw errors.unauthorized();
+  }
+};
