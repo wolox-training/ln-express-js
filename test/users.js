@@ -15,6 +15,13 @@ const successfulLogin = () => {
     .send({ email: 'email1@wolox.com.ar', password: 'wolox1189' });
 };
 
+const successfulAdminLogin = () => {
+  return chai
+    .request(server)
+    .post('/users/sessions')
+    .send({ email: 'admin@wolox.com.ar', password: 'wolox1189' });
+};
+
 chai.use(chaiHttp);
 describe('/users POST', () => {
   it('registration should fail because email is missing', done => {
@@ -259,6 +266,86 @@ describe('/users GET', () => {
         .catch(err => {
           err.should.have.status(200);
           err.response.should.be.json;
+        })
+        .then(() => done());
+    });
+  });
+});
+
+describe('/admin/users POST', () => {
+  it('admin registration should be succesful', done => {
+    const sampleUser = {
+      firstName: 'John',
+      lastName: 'Smith',
+      email: 'john.smith@wolox.com.ar',
+      password: 'wolox1189'
+    };
+    successfulAdminLogin().then(loginRes => {
+      return chai
+        .request(server)
+        .post('/admin/users')
+        .set(sessionManager.HEADER_NAME, loginRes.headers[sessionManager.HEADER_NAME])
+        .send(sampleUser)
+        .then(res => {
+          res.should.have.status(201);
+          return User.getByEmail(sampleUser.email).then(user => {
+            user.dataValues.should.have.property('firstName', sampleUser.firstName);
+            user.dataValues.should.have.property('lastName', sampleUser.lastName);
+            user.dataValues.should.have.property('email', sampleUser.email);
+            user.dataValues.should.have.property('isAdmin', true);
+            assert(bcrypt.compareSync(sampleUser.password, user.dataValues.password));
+            dictum.chai(res);
+          });
+        })
+        .then(() => done());
+    });
+  });
+  it('admin registration should fail because logged in with non-admin user', done => {
+    const sampleUser = {
+      firstName: 'John',
+      lastName: 'Smith',
+      email: 'john.smith@wolox.com.ar',
+      password: 'wolox1189'
+    };
+    successfulLogin()
+      .then(loginRes => {
+        return chai
+          .request(server)
+          .post('/admin/users')
+          .set(sessionManager.HEADER_NAME, loginRes.headers[sessionManager.HEADER_NAME])
+          .send(sampleUser)
+          .catch(err => {
+            err.should.have.status(401);
+            err.response.should.be.json;
+            err.response.body.should.have.property('message');
+            err.response.body.should.have.property('internal_code', 'unauthorized');
+          });
+      })
+      .then(() => done());
+  });
+  it('user modification to admin should be succesful', done => {
+    const sampleUser = {
+      firstName: 'firstName3',
+      lastName: 'lastName3',
+      email: 'email3@wolox.com.ar',
+      password: 'wolox1189'
+    };
+    successfulAdminLogin().then(loginRes => {
+      return chai
+        .request(server)
+        .post('/admin/users')
+        .set(sessionManager.HEADER_NAME, loginRes.headers[sessionManager.HEADER_NAME])
+        .send(sampleUser)
+        .then(res => {
+          res.should.have.status(201);
+          return User.getByEmail(sampleUser.email).then(user => {
+            user.dataValues.should.have.property('firstName', sampleUser.firstName);
+            user.dataValues.should.have.property('lastName', sampleUser.lastName);
+            user.dataValues.should.have.property('email', sampleUser.email);
+            user.dataValues.should.have.property('isAdmin', true);
+            assert(bcrypt.compareSync(sampleUser.password, user.dataValues.password));
+            dictum.chai(res);
+          });
         })
         .then(() => done());
     });
