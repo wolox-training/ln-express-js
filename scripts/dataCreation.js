@@ -13,5 +13,13 @@ exports.execute = async () => {
     // eslint-disable-next-line no-await-in-loop
     data.push(await User.createUser(user));
   }
+  const adminUser = {
+    firstName: `AdminTest`,
+    lastName: `AdminTest`,
+    email: `admin@wolox.com.ar`,
+    password: `wolox1189`,
+    isAdmin: true
+  };
+  data.push(await User.createUser(adminUser));
   return Promise.all(data);
 };
