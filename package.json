@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "description": "Kickoff for ExpressJS applications",
   "engines": {
-    "node": "8.9.4",
-    "npm": "2.14.2"
+    "node": "10.14.1",
+    "npm": "6.4.1"
   },
   "scripts": {
     "console": "node console.js",
@@ -25,7 +25,8 @@
     "test": "NODE_ENV=testing ./node_modules/mocha/bin/_mocha --timeout 6000 --exit --compilers js:babel-core/register test/app.js",
     "test-inspect": "NODE_ENV=testing node --inspect --debug-brk ./node_modules/mocha/bin/_mocha --compilers js:babel-core/register test/app.js",
     "migrations-test": "NODE_ENV=testing ./node_modules/.bin/sequelize db:migrate",
-    "migrations-undo-test": "NODE_ENV=testing ./node_modules/.bin/sequelize db:migrate:undo"
+    "migrations-undo-test": "NODE_ENV=testing ./node_modules/.bin/sequelize db:migrate:undo",
+    "heroku-postbuild": "npm install --production"
   },
   "cacheDirectories": [
     "node_modules"

@@ -64,7 +64,7 @@ const init = () => {
       });
       app.use(rollbar.errorHandler());
 
-      app.listen(port);
+      app.listen(process.env.PORT || port);
 
       logger.info(`Listening on port: ${port}`);
     })
