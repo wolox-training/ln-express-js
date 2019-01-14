@@ -27,22 +27,23 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   User.associate = function(models) {};
-
-  User.createModel = user => {
-    return User.create(user).catch(err => {
-      throw errors.savingError(err.errors);
-    });
-  };
   User.getById = id => {
     return User.findOne({ where: { id } }).catch(err => {
       throw errors.databaseError(err.detail);
     });
   };
-
+  User.getOne = email => {
+    return User.findOne({ where: email }).catch(err => {
+      throw errors.databaseError(err.detail);
+    });
+  };
+  User.getByEmail = email => {
+    return User.getOne({ email });
+  };
   User.createUser = user => {
     const passwordRequirements = /^([a-z0-9]{8,})$/.test(user.password);
     if (!passwordRequirements) {
-      throw errors.savingError('Password does not meet the requirements');
+      throw errors.passwordError('Password does not meet the requirements');
     }
     const salt = 10;
     return bcrypt
@@ -51,14 +52,19 @@ module.exports = (sequelize, DataTypes) => {
         user.password = hash;
         return User.create(user)
           .then(res => {
-            logger.info('User created');
+            logger.info(`User ${user.email} created`);
           })
           .catch(err => {
-            throw errors.invalidEmail;
+            throw errors.invalidEmail();
           });
       })
       .catch(err => {
-        throw errors.encryptionError(err.message);
+        if (err.internalCode) {
+          // If thrown error on previous catch, throw same error.
+          throw errors.invalidEmail();
+        } else {
+          throw errors.encryptionError(err.message);
+        }
       });
   };
 

@@ -20,9 +20,12 @@
     "pretest": "npm run lint",
     "prestart": "npm run lint",
     "migrations": "./node_modules/.bin/sequelize db:migrate",
+    "migrations-undo": "./node_modules/.bin/sequelize db:migrate:undo",
     "start": "./node_modules/.bin/nodemon --inspect app.js",
     "test": "NODE_ENV=testing ./node_modules/mocha/bin/_mocha --timeout 6000 --exit --compilers js:babel-core/register test/app.js",
-    "test-inspect": "NODE_ENV=testing node --inspect --debug-brk ./node_modules/mocha/bin/_mocha --compilers js:babel-core/register test/app.js"
+    "test-inspect": "NODE_ENV=testing node --inspect --debug-brk ./node_modules/mocha/bin/_mocha --compilers js:babel-core/register test/app.js",
+    "migrations-test": "NODE_ENV=testing ./node_modules/.bin/sequelize db:migrate",
+    "migrations-undo-test": "NODE_ENV=testing ./node_modules/.bin/sequelize db:migrate:undo"
   },
   "cacheDirectories": [
     "node_modules"
@@ -44,12 +47,14 @@
     "body-parser": "^1.18.2",
     "cors": "^2.8.4",
     "express": "^4.16.2",
+    "express-validator": "^5.3.0",
     "jwt-simple": "^0.5.1",
     "morgan": "^1.9.0",
     "pg": "^7.4.1",
     "rollbar": "^2.3.9",
     "sequelize": "^4.34.0",
     "umzug": "^2.1.0",
+    "validator": "^10.9.0",
     "winston": "^2.4.0",
     "winston-daily-rotate-file": "^1.7.2"
   },

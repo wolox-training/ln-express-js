@@ -1,5 +1,8 @@
-const users = require('./controllers/users');
+const users = require('./controllers/users'),
+  validation = require('./middlewares/validation'),
+  { check, validationResult } = require('express-validator/check');
 
 exports.init = app => {
-  app.post('/users', users.create);
+  app.post('/users', validation.validateSignup, validation.validateResults, users.create);
+  app.get('/users', users.getByEmail);
 };
