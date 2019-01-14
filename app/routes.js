@@ -14,4 +14,6 @@ exports.init = app => {
   );
   app.get('/users', auth.secure, validation.validateResults(validation.validateGetUsers), users.getAll);
   app.post('/users/sessions', validation.validateResults(validation.validateSignin), users.login);
+
+  app.get('/albums', auth.secure, users.getAllAlbums);
 };

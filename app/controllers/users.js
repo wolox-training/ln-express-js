@@ -2,7 +2,8 @@ const User = require('../models').user,
   errors = require('../errors'),
   sessionManager = require('./../services/sessionManager'),
   logger = require('../logger'),
-  bcrypt = require('bcryptjs');
+  bcrypt = require('bcryptjs'),
+  fetch = require('node-fetch');
 
 exports.create = (req, res, next) => {
   const user = req.body
@@ -90,4 +91,13 @@ exports.getAll = (req, res, next) => {
     res.status(200);
     res.send(response);
   });
+};
+
+exports.getAllAlbums = (req, res, next) => {
+  fetch('https://jsonplaceholder.typicode.com/albums')
+    .then(response => response.json())
+    .then(json => {
+      res.status(200);
+      res.send(json);
+    });
 };
