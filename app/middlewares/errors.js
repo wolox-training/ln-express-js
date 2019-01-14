@@ -8,8 +8,6 @@ const statusCodes = {
   [errors.PASSWORD_ERROR]: 400,
   [errors.MISSING_PARAMETERS]: 400,
   [errors.ENCRYPTION_ERROR]: 500,
-  [errors.INVALID_USER]: 400,
-  [errors.BOOK_NOT_FOUND]: 404,
   [errors.SAVING_ERROR]: 400,
   [errors.DATABASE_ERROR]: 503,
   [errors.DEFAULT_ERROR]: 500
