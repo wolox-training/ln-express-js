@@ -4,23 +4,16 @@ const User = require('../models').user,
   logger = require('../logger'),
   bcrypt = require('bcryptjs');
 
-exports.create = (req, res, next) => {
-  const user = {
-    firstName: req.body.firstName,
-    lastName: req.body.lastName,
-    email: req.body.email,
-    password: req.body.password
-  };
-  User.createUser(user)
+exports.create = (req, res, next) =>
+  User.createUser(req.body)
     .then(response => {
       res.status(201);
       res.send();
     })
     .catch(next);
-};
 
-exports.getByEmail = (req, res, next) => {
-  return User.getByEmail(req.query.email)
+exports.getByEmail = (req, res, next) =>
+  User.getByEmail(req.query.email)
     .then(email => {
       if (email) {
         res.status(200);
@@ -30,16 +23,11 @@ exports.getByEmail = (req, res, next) => {
       }
     })
     .catch(next);
-};
 
-exports.login = (req, res, next) => {
-  const userRequested = {
-    email: req.body.email,
-    password: req.body.password
-  };
-  User.getByEmail(userRequested.email).then(user => {
+exports.login = (req, res, next) =>
+  User.getByEmail(req.body.email).then(user => {
     if (user) {
-      const isValid = bcrypt.compareSync(userRequested.password, user.dataValues.password);
+      const isValid = bcrypt.compareSync(req.body.password, user.dataValues.password);
       if (isValid) {
         const auth = sessionManager.encode({ email: user.dataValues.email });
 
@@ -54,15 +42,9 @@ exports.login = (req, res, next) => {
       next(errors.invalidUser());
     }
   });
-};
 
-exports.getAll = (req, res, next) => {
-  const searchParameters = {
-    limit: req.query.limit,
-    offset: req.query.offset
-  };
-  return User.getAll(searchParameters.limit, searchParameters.offset).then(response => {
+exports.getAll = (req, res, next) =>
+  User.getAll(req.query.limit, req.query.offset).then(response => {
     res.status(200);
     res.send(response);
   });
-};
