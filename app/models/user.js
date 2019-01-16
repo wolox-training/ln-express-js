@@ -30,6 +30,10 @@ module.exports = (sequelize, DataTypes) => {
     }
   });
 
+  User.associate = models => {
+    User.hasMany(models.Album, { foreignKey: 'userId' });
+  };
+
   User.associate = function(models) {};
   User.getById = id => {
     return User.findOne({ where: { id } }).catch(err => {
