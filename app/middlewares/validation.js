@@ -66,7 +66,7 @@ exports.validateGetUsers = [
 
 exports.validateResults = (...validations) => {
   const allValidations = validations.reduce((accum, value) => [...accum, ...value]);
-  const validationsAndResult = allValidations.concat([
+  return allValidations.concat([
     (req, res, next) => {
       const valErrors = validationResult(req);
       if (!valErrors.isEmpty()) {
@@ -76,5 +76,4 @@ exports.validateResults = (...validations) => {
       }
     }
   ]);
-  return validationsAndResult;
 };

@@ -13,10 +13,10 @@ exports.secure = (req, res, next) => {
         req.user = u;
         next();
       } else {
-        throw errors.unauthorized();
+        next(errors.unauthorized());
       }
     });
   } else {
-    throw errors.unauthorized();
+    next(errors.unauthorized());
   }
 };
