@@ -5,14 +5,12 @@ const User = require('../models').user,
   bcrypt = require('bcryptjs');
 
 exports.create = (req, res, next) => {
-  const user = req.body
-    ? {
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        email: req.body.email,
-        password: req.body.password
-      }
-    : {};
+  const user = {
+    firstName: req.body.firstName,
+    lastName: req.body.lastName,
+    email: req.body.email,
+    password: req.body.password
+  };
   User.createUser(user)
     .then(response => {
       res.status(201);
@@ -35,22 +33,20 @@ exports.getByEmail = (req, res, next) => {
 };
 
 exports.login = (req, res, next) => {
-  const user = req.body
-    ? {
-        email: req.body.email,
-        password: req.body.password
-      }
-    : {};
-  User.getByEmail(user.email).then(response => {
-    if (response) {
-      const isValid = bcrypt.compareSync(user.password, response.dataValues.password);
+  const userRequested = {
+    email: req.body.email,
+    password: req.body.password
+  };
+  User.getByEmail(userRequested.email).then(user => {
+    if (user) {
+      const isValid = bcrypt.compareSync(userRequested.password, user.dataValues.password);
       if (isValid) {
-        const auth = sessionManager.encode({ email: response.dataValues.email });
+        const auth = sessionManager.encode({ email: user.dataValues.email });
 
         res.status(200);
         res.set(sessionManager.HEADER_NAME, auth);
-        logger.info(`${response.dataValues.email} logged in.`);
-        res.send(response);
+        logger.info(`${user.dataValues.email} logged in.`);
+        res.send(user);
       } else {
         next(errors.invalidUser());
       }
@@ -61,12 +57,10 @@ exports.login = (req, res, next) => {
 };
 
 exports.getAll = (req, res, next) => {
-  const searchParameters = req.query
-    ? {
-        limit: req.query.limit,
-        offset: req.query.offset
-      }
-    : {};
+  const searchParameters = {
+    limit: req.query.limit,
+    offset: req.query.offset
+  };
   return User.getAll(searchParameters.limit, searchParameters.offset).then(response => {
     res.status(200);
     res.send(response);
