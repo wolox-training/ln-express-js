@@ -1,5 +1,8 @@
 const User = require('../models').user,
-  errors = require('../errors');
+  errors = require('../errors'),
+  sessionManager = require('./../services/sessionManager'),
+  logger = require('../logger'),
+  bcrypt = require('bcryptjs');
 
 exports.create = (req, res, next) => {
   const user = req.body
@@ -29,4 +32,30 @@ exports.getByEmail = (req, res, next) => {
       }
     })
     .catch(next);
+};
+
+exports.login = (req, res, next) => {
+  const user = req.body
+    ? {
+        email: req.body.email,
+        password: req.body.password
+      }
+    : {};
+  User.getByEmail(user.email).then(response => {
+    if (response) {
+      const isValid = bcrypt.compareSync(user.password, response.dataValues.password);
+      if (isValid) {
+        const auth = sessionManager.encode({ email: response.dataValues.email });
+
+        res.status(200);
+        res.set(sessionManager.HEADER_NAME, auth);
+        logger.info(`${response.dataValues.email} logged in.`);
+        res.send(response);
+      } else {
+        next(errors.invalidUser());
+      }
+    } else {
+      next(errors.invalidUser());
+    }
+  });
 };

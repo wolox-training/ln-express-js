@@ -6,17 +6,17 @@ exports.validateSignup = [
   check('firstName')
     .not()
     .isEmpty()
-    .withMessage(errors.missingParameters),
+    .withMessage(errors.missingParameters('First name is missing.')),
 
   check('lastName')
     .not()
     .isEmpty()
-    .withMessage(errors.missingParameters),
+    .withMessage(errors.missingParameters('Last name is missing.')),
 
   check('email')
     .not()
     .isEmpty()
-    .withMessage(errors.missingParameters)
+    .withMessage(errors.missingParameters('Email is missing.'))
     .isEmail()
     .withMessage(errors.invalidEmail('Invalid email.'))
     .matches(/^.+@wolox(\.com\.ar|\.co)$/i)
@@ -30,19 +30,40 @@ exports.validateSignup = [
   check('password')
     .not()
     .isEmpty()
-    .withMessage(errors.missingParameters)
+    .withMessage(errors.missingParameters('Password is missing.'))
     .isLength({ min: 8 })
     .withMessage(errors.passwordError('Password must be at least 8 characters in length.'))
     .isAlphanumeric()
     .withMessage(errors.passwordError('Password must be alphanumeric'))
 ];
 
-exports.validateResults = (req, res, next) => {
-  const valErrors = validationResult(req);
-  if (!valErrors.isEmpty()) {
-    const firstError = valErrors.array()[0].msg;
-    throw firstError;
-  } else {
-    next();
-  }
+exports.validateSignin = [
+  check('email')
+    .not()
+    .isEmpty()
+    .withMessage(errors.missingParameters('Email is missing.'))
+    .isEmail()
+    .withMessage(errors.invalidEmail('Invalid email.'))
+    .matches(/^.+@wolox(\.com\.ar|\.co)$/i)
+    .withMessage(errors.invalidEmail('The email does not belong to a Wolox domain.')),
+
+  check('password')
+    .not()
+    .isEmpty()
+    .withMessage(errors.missingParameters('Password is missing.'))
+];
+
+exports.validateResults = (...validations) => {
+  const allValidations = validations.reduce((accum, value) => [...accum, ...value]);
+  const validationsAndResult = allValidations.concat([
+    (req, res, next) => {
+      const valErrors = validationResult(req);
+      if (!valErrors.isEmpty()) {
+        return res.json({ errors: valErrors.array() });
+      } else {
+        next();
+      }
+    }
+  ]);
+  return validationsAndResult;
 };
