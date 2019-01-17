@@ -1,6 +1,8 @@
 const errors = require('../errors'),
   User = require('../models').user,
-  { check, validationResult } = require('express-validator/check');
+  Album = require('../models').album,
+  { check, validationResult } = require('express-validator/check'),
+  sessionManager = require('./../services/sessionManager');
 
 exports.validateSignup = [
   check('firstName')
@@ -92,6 +94,21 @@ exports.validateGetUsers = [
     .optional()
     .isInt({ gt: -1 })
     .withMessage(errors.invalidParameters('Offset must be an integer greater or equal to 0'))
+];
+
+exports.validatAlbumBuying = [
+  check('id')
+    .isInt({ min: 1, max: 100 })
+    .withMessage(errors.invalidParameters('Album Id must be an integer between 1 and 100.'))
+    .custom(async (albumId, { req, loc, path }) => {
+      const auth = req.headers.authorization;
+      const loggedUser = await sessionManager.decode(auth);
+      const user = await User.getByEmail(loggedUser.email);
+      const userId = user.dataValues.id;
+      const foundAlbum = await Album.getOne(albumId, userId);
+      return !foundAlbum;
+    })
+    .withMessage(errors.databaseError(`Can\'t buy same album multiple times.`))
 ];
 
 exports.validateResults = (...validations) => {

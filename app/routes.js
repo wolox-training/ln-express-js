@@ -17,5 +17,10 @@ exports.init = app => {
   app.post('/users/sessions', validation.validateResults(validation.validateSignin), users.login);
 
   app.get('/albums', auth.secure, albums.getAllAlbums);
-  app.post('/albums/:id', auth.secure, albums.buyAlbum);
+  app.post(
+    '/albums/:id',
+    auth.secure,
+    validation.validateResults(validation.validatAlbumBuying),
+    albums.buyAlbum
+  );
 };
