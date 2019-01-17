@@ -85,7 +85,7 @@ exports.validateSignin = [
     .withMessage(errors.missingParameters('Password is missing.'))
 ];
 
-exports.validateGetUsers = [
+exports.validateListing = [
   check('limit')
     .optional()
     .isInt({ gt: 0 })
@@ -96,7 +96,7 @@ exports.validateGetUsers = [
     .withMessage(errors.invalidParameters('Offset must be an integer greater or equal to 0'))
 ];
 
-exports.validatAlbumBuying = [
+exports.validateAlbumBuying = [
   check('id')
     .isInt({ min: 1, max: 100 })
     .withMessage(errors.invalidParameters('Album Id must be an integer between 1 and 100.'))
@@ -109,6 +109,20 @@ exports.validatAlbumBuying = [
       return !foundAlbum;
     })
     .withMessage(errors.databaseError(`Can\'t buy same album multiple times.`))
+];
+
+exports.validateListAlbums = [
+  check('user_id')
+    .isInt({ min: 1 })
+    .withMessage(errors.invalidParameters('User Id must be a positive integer.'))
+    .custom(async (userId, { req, loc, path }) => {
+      const auth = req.headers.authorization;
+      const loggedUser = await sessionManager.decode(auth);
+      const user = await User.getByEmail(loggedUser.email);
+      const loggedUserId = user.dataValues.id;
+      return user.dataValues.isAdmin || loggedUserId === parseInt(userId);
+    })
+    .withMessage(errors.unauthorized())
 ];
 
 exports.validateResults = (...validations) => {

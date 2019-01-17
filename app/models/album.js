@@ -36,7 +36,7 @@ module.exports = (sequelize, DataTypes) => {
       });
   };
   Album.getAll = (userId, limit = 10, offset = 0) => {
-    return Album.findAll({ limit, offset, where: userId }).catch(err => {
+    return Album.findAll({ limit, offset, where: { userId } }).catch(err => {
       throw errors.databaseError(err.detail);
     });
   };

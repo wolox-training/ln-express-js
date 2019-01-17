@@ -1,4 +1,5 @@
 const User = require('../models').user,
+  Album = require('../models').album,
   errors = require('../errors'),
   sessionManager = require('./../services/sessionManager'),
   logger = require('../logger'),
@@ -88,6 +89,13 @@ exports.getAll = (req, res, next) => {
       }
     : {};
   return User.getAll(searchParameters.limit, searchParameters.offset).then(response => {
+    res.status(200);
+    res.send(response);
+  });
+};
+
+exports.getBoughtAlbums = (req, res, next) => {
+  return Album.getAll(req.params.user_id, req.query.limit, req.query.offset).then(response => {
     res.status(200);
     res.send(response);
   });

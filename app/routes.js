@@ -13,14 +13,20 @@ exports.init = app => {
     validation.validateResults(validation.validateAdminSignup),
     users.createAdmin
   );
-  app.get('/users', auth.secure, validation.validateResults(validation.validateGetUsers), users.getAll);
+  app.get('/users', auth.secure, validation.validateResults(validation.validateListing), users.getAll);
   app.post('/users/sessions', validation.validateResults(validation.validateSignin), users.login);
+  app.get(
+    '/users/:user_id/albums',
+    auth.secure,
+    validation.validateResults(validation.validateListing, validation.validateListAlbums),
+    users.getBoughtAlbums
+  );
 
   app.get('/albums', auth.secure, albums.getAllAlbums);
   app.post(
     '/albums/:id',
     auth.secure,
-    validation.validateResults(validation.validatAlbumBuying),
+    validation.validateResults(validation.validateAlbumBuying),
     albums.buyAlbum
   );
 };
