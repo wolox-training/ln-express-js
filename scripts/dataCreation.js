@@ -1,4 +1,5 @@
-const User = require('../app/models').user;
+const User = require('../app/models').user,
+  Album = require('../app/models').album;
 
 exports.execute = async () => {
   const data = [];
@@ -21,5 +22,18 @@ exports.execute = async () => {
     isAdmin: true
   };
   data.push(await User.createUser(adminUser));
+
+  const newAlbum1 = {
+    albumId: 11,
+    userId: 1,
+    title: 'quam nostrum impedit mollitia quod et dolor'
+  };
+  const newAlbum2 = {
+    albumId: 12,
+    userId: 1,
+    title: 'consequatur autem doloribus natus consectetur'
+  };
+  data.push(await Album.createAlbum(newAlbum1));
+  data.push(await Album.createAlbum(newAlbum2));
   return Promise.all(data);
 };

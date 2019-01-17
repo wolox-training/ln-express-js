@@ -351,3 +351,127 @@ describe('/admin/users POST', () => {
     });
   });
 });
+
+describe('/users/:user_id/albums GET', () => {
+  it('should fail because user not logged', done => {
+    chai
+      .request(server)
+      .get('/users/1/albums')
+      .catch(err => {
+        err.should.have.status(401);
+        err.response.should.be.json;
+        err.response.body.should.have.property('message');
+        err.response.body.should.have.property('internal_code', 'unauthorized');
+      })
+      .then(() => done());
+  });
+  it('should fail because user trying to list albums from another user', done => {
+    successfulLogin().then(loginRes => {
+      return chai
+        .request(server)
+        .get('/users/2/albums')
+        .set(sessionManager.HEADER_NAME, loginRes.headers[sessionManager.HEADER_NAME])
+        .catch(err => {
+          err.should.have.status(401);
+          err.response.should.be.json;
+          err.response.body.should.have.property('message');
+          err.response.body.should.have.property('internal_code', 'unauthorized');
+        })
+        .then(() => done());
+    });
+  });
+  it('album list without parameters should be successful', done => {
+    successfulLogin()
+      .then(loginRes => {
+        return chai
+          .request(server)
+          .get('/users/1/albums')
+          .set(sessionManager.HEADER_NAME, loginRes.headers[sessionManager.HEADER_NAME])
+          .then(res => {
+            res.should.have.status(200);
+            res.should.be.json;
+            res.body.should.be.a('array');
+            res.body[0].should.have.property('id');
+            res.body[0].should.have.property('albumId');
+            res.body[0].should.have.property('userId');
+            res.body[0].should.have.property('title');
+            dictum.chai(res);
+          });
+      })
+      .then(() => done());
+  });
+  it('album list with limit parameter should be successful', done => {
+    successfulLogin()
+      .then(loginRes => {
+        return chai
+          .request(server)
+          .get('/users/1/albums?limit=1')
+          .set(sessionManager.HEADER_NAME, loginRes.headers[sessionManager.HEADER_NAME])
+          .then(res => {
+            res.should.have.status(200);
+            res.should.be.json;
+            res.body.should.be.a('array');
+            res.body[0].should.have.property('id');
+            res.body[0].should.have.property('albumId');
+            res.body[0].should.have.property('userId');
+            res.body[0].should.have.property('title');
+            assert(res.body.length === 1, 'length of array is 1');
+            dictum.chai(res);
+          });
+      })
+      .then(() => done());
+  });
+  it('album list with limit and offset parameters should be successful', done => {
+    successfulLogin()
+      .then(loginRes => {
+        return chai
+          .request(server)
+          .get('/users/1/albums?limit=1&offset=1')
+          .set(sessionManager.HEADER_NAME, loginRes.headers[sessionManager.HEADER_NAME])
+          .then(res => {
+            res.should.have.status(200);
+            res.should.be.json;
+            res.body.should.be.a('array');
+            res.body[0].should.have.property('id');
+            res.body[0].should.have.property('albumId', 12);
+            res.body[0].should.have.property('userId');
+            res.body[0].should.have.property('title');
+            assert(res.body.length === 1, 'length of array is 1');
+            dictum.chai(res);
+          });
+      })
+      .then(() => done());
+  });
+  it('album list with invalid limit (string) should fail', done => {
+    successfulLogin().then(loginRes => {
+      return chai
+        .request(server)
+        .get('/users/1/albums?limit=invalid')
+        .set(sessionManager.HEADER_NAME, loginRes.headers[sessionManager.HEADER_NAME])
+        .catch(err => {
+          err.should.have.status(200);
+          err.response.should.be.json;
+        })
+        .then(() => done());
+    });
+  });
+  it('should be successful because admin is trying to list albums from another user', done => {
+    successfulAdminLogin()
+      .then(loginRes => {
+        return chai
+          .request(server)
+          .get('/users/1/albums')
+          .set(sessionManager.HEADER_NAME, loginRes.headers[sessionManager.HEADER_NAME])
+          .then(res => {
+            res.should.have.status(200);
+            res.should.be.json;
+            res.body.should.be.a('array');
+            res.body[0].should.have.property('id');
+            res.body[0].should.have.property('albumId');
+            res.body[0].should.have.property('userId');
+            res.body[0].should.have.property('title');
+          });
+      })
+      .then(() => done());
+  });
+});
