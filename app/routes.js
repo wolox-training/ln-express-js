@@ -21,7 +21,12 @@ exports.init = app => {
     validation.validateResults(validation.validateListing, validation.validateListAlbums),
     users.getBoughtAlbums
   );
-
+  app.get(
+    '/users/albums/:id/photos',
+    auth.secure,
+    validation.validateResults(validation.validateListPhotos),
+    albums.getAllPhotos
+  );
   app.get('/albums', auth.secure, albums.getAllAlbums);
   app.post(
     '/albums/:id',

@@ -125,6 +125,21 @@ exports.validateListAlbums = [
     .withMessage(errors.unauthorized())
 ];
 
+exports.validateListPhotos = [
+  check('id')
+    .isInt({ min: 1 })
+    .withMessage(errors.invalidParameters('Album Id must be a positive integer.'))
+    .custom(async (albumId, { req, loc, path }) => {
+      const auth = req.headers.authorization;
+      const loggedUser = await sessionManager.decode(auth);
+      const user = await User.getByEmail(loggedUser.email);
+      const userId = user.dataValues.id;
+      const foundAlbum = await Album.getOne(albumId, userId);
+      return foundAlbum;
+    })
+    .withMessage(errors.unauthorized())
+];
+
 exports.validateResults = (...validations) => {
   const allValidations = validations.reduce((accum, value) => [...accum, ...value]);
   const validationsAndResult = allValidations.concat([

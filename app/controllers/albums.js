@@ -36,3 +36,12 @@ exports.getAllAlbums = (req, res, next) => {
       res.send(json);
     });
 };
+
+exports.getAllPhotos = async (req, res, next) => {
+  fetch(`https://jsonplaceholder.typicode.com/albums/${req.params.id}/photos`)
+    .then(response => response.json())
+    .then(json => {
+      res.status(200);
+      res.send(json);
+    });
+};

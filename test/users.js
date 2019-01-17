@@ -6,7 +6,8 @@ const chai = require('chai'),
   should = chai.should(),
   bcrypt = require('bcryptjs'),
   User = require('../app/models').user,
-  sessionManager = require('./../app/services/sessionManager');
+  sessionManager = require('./../app/services/sessionManager'),
+  nock = require('nock');
 
 const successfulLogin = () => {
   return chai
@@ -23,6 +24,44 @@ const successfulAdminLogin = () => {
 };
 
 chai.use(chaiHttp);
+const photoListMock = [
+  {
+    albumId: 1,
+    id: 1,
+    title: 'accusamus beatae ad facilis cum similique qui sunt',
+    url: 'https://via.placeholder.com/600/92c952',
+    thumbnailUrl: 'https://via.placeholder.com/150/92c952'
+  },
+  {
+    albumId: 1,
+    id: 2,
+    title: 'reprehenderit est deserunt velit ipsam',
+    url: 'https://via.placeholder.com/600/771796',
+    thumbnailUrl: 'https://via.placeholder.com/150/771796'
+  },
+  {
+    albumId: 1,
+    id: 3,
+    title: 'officia porro iure quia iusto qui ipsa ut modi',
+    url: 'https://via.placeholder.com/600/24f355',
+    thumbnailUrl: 'https://via.placeholder.com/150/24f355'
+  },
+  {
+    albumId: 1,
+    id: 4,
+    title: 'culpa odio esse rerum omnis laboriosam voluptate repudiandae',
+    url: 'https://via.placeholder.com/600/d32776',
+    thumbnailUrl: 'https://via.placeholder.com/150/d32776'
+  },
+  {
+    albumId: 1,
+    id: 5,
+    title: 'natus nisi omnis corporis facere molestiae rerum in',
+    url: 'https://via.placeholder.com/600/f66b97',
+    thumbnailUrl: 'https://via.placeholder.com/150/f66b97'
+  }
+];
+
 describe('/users POST', () => {
   it('registration should fail because email is missing', done => {
     const userWithoutEmail = {
@@ -470,6 +509,63 @@ describe('/users/:user_id/albums GET', () => {
             res.body[0].should.have.property('albumId');
             res.body[0].should.have.property('userId');
             res.body[0].should.have.property('title');
+          });
+      })
+      .then(() => done());
+  });
+});
+
+describe('/users/albums/:id/photos GET', () => {
+  beforeEach(() => {
+    nock('https://jsonplaceholder.typicode.com')
+      .get('/albums/11/photos')
+      .reply(200, photoListMock);
+  });
+  it('should fail because user not logged', done => {
+    chai
+      .request(server)
+      .get('/users/albums/11/photos')
+      .catch(err => {
+        err.should.have.status(401);
+        err.response.should.be.json;
+        err.response.body.should.have.property('message');
+        err.response.body.should.have.property('internal_code', 'unauthorized');
+      })
+      .then(() => done());
+  });
+  it('should fail because user trying to list photos from album not bought', done => {
+    successfulLogin().then(loginRes => {
+      return chai
+        .request(server)
+        .get('/users/albums/99/photos')
+        .set(sessionManager.HEADER_NAME, loginRes.headers[sessionManager.HEADER_NAME])
+        .catch(err => {
+          err.should.have.status(401);
+          err.response.should.be.json;
+          err.response.body.should.have.property('message');
+          err.response.body.should.have.property('internal_code', 'unauthorized');
+        })
+        .then(() => done());
+    });
+  });
+  it('photo list should be successful', done => {
+    successfulLogin()
+      .then(loginRes => {
+        return chai
+          .request(server)
+          .get('/users/albums/11/photos')
+          .set(sessionManager.HEADER_NAME, loginRes.headers[sessionManager.HEADER_NAME])
+          .then(res => {
+            res.should.have.status(200);
+            res.should.be.json;
+            res.body.should.be.a('array');
+            assert(res.body.length === 5, 'length of array is 5');
+            res.body[0].should.have.property('albumId');
+            res.body[0].should.have.property('id');
+            res.body[0].should.have.property('title');
+            res.body[0].should.have.property('url');
+            res.body[0].should.have.property('thumbnailUrl');
+            dictum.chai(res);
           });
       })
       .then(() => done());
