@@ -10,8 +10,7 @@ exports.create = (req, res, next) => {
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         email: req.body.email,
-        password: req.body.password,
-        isAdmin: false
+        password: req.body.password
       }
     : {};
   User.createUser(user)
