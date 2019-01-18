@@ -1,4 +1,4 @@
-const tokens = [];
+let tokens = [];
 
 module.exports = {
   add(token, payload) {
@@ -17,5 +17,9 @@ module.exports = {
     } else {
       return true;
     }
+  },
+
+  removeAll(email) {
+    tokens = tokens.filter(payload => payload.email !== email);
   }
 };

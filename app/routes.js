@@ -28,6 +28,7 @@ exports.init = app => {
     validation.validateResults(validation.validateListPhotos),
     albums.getAllPhotos
   );
+  app.post('/users/sessions/invalidate_all', auth.secure, users.logout);
   app.get('/albums', auth.secure, albums.getAllAlbums);
   app.post(
     '/albums/:id',

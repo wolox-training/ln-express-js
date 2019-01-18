@@ -118,3 +118,11 @@ exports.getBoughtAlbums = (req, res, next) => {
     res.send(response);
   });
 };
+
+exports.logout = (req, res, next) => {
+  const auth = req.headers[sessionManager.HEADER_NAME];
+  const user = auth ? sessionManager.decode(auth) : '';
+  tokens.removeAll(user.email);
+  res.status(200);
+  res.send('Logged out');
+};
