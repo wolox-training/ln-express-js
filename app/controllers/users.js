@@ -1,10 +1,13 @@
 const User = require('../models').user,
   Album = require('../models').album,
+  ConfigVariables = require('../models').configVariables,
   errors = require('../errors'),
   sessionManager = require('./../services/sessionManager'),
   logger = require('../logger'),
   bcrypt = require('bcryptjs'),
-  fetch = require('node-fetch');
+  fetch = require('node-fetch'),
+  moment = require('moment'),
+  tokens = require('./../services/tokens');
 
 exports.create = (req, res, next) => {
   const user = req.body
@@ -62,16 +65,31 @@ exports.login = (req, res, next) => {
         password: req.body.password
       }
     : {};
-  User.getByEmail(user.email).then(response => {
+  User.getByEmail(user.email).then(async response => {
     if (response) {
       const isValid = bcrypt.compareSync(user.password, response.dataValues.password);
       if (isValid) {
-        const auth = sessionManager.encode({ email: response.dataValues.email });
+        let expirationSeconds = '';
+        await ConfigVariables.getOne('expiration').then(variableFound => {
+          expirationSeconds = variableFound.value;
+        });
+        const payload = {
+          email: response.dataValues.email,
+          exp: moment()
+            .add(expirationSeconds, 'seconds')
+            .valueOf()
+        };
+        const auth = sessionManager.encode(payload);
+        tokens.add(auth, payload);
 
         res.status(200);
         res.set(sessionManager.HEADER_NAME, auth);
         logger.info(`${response.dataValues.email} logged in.`);
-        res.send(response);
+        const responseData = {
+          token: auth,
+          expiresSecondsFromNow: expirationSeconds
+        };
+        res.send(responseData);
       } else {
         next(errors.invalidUser());
       }

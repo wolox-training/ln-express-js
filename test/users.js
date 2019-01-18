@@ -7,7 +7,8 @@ const chai = require('chai'),
   bcrypt = require('bcryptjs'),
   User = require('../app/models').user,
   sessionManager = require('./../app/services/sessionManager'),
-  nock = require('nock');
+  nock = require('nock'),
+  sinon = require('sinon');
 
 const successfulLogin = () => {
   return chai
@@ -22,6 +23,8 @@ const successfulAdminLogin = () => {
     .post('/users/sessions')
     .send({ email: 'admin@wolox.com.ar', password: 'wolox1189' });
 };
+
+let clock;
 
 chai.use(chaiHttp);
 const photoListMock = [
@@ -161,10 +164,8 @@ describe('/user/sessions POST', () => {
       .send(sampleUser)
       .then(res => {
         res.should.have.status(200);
-        res.body.should.have.property('firstName');
-        res.body.should.have.property('lastName');
-        res.body.should.have.property('email');
-        res.body.should.have.property('password');
+        res.body.should.have.property('token');
+        res.body.should.have.property('expiresSecondsFromNow');
         res.headers.should.have.property(sessionManager.HEADER_NAME);
         const resEmail = sessionManager.decode(res.headers.authorization).email;
         assert(sampleUser.email === resEmail);
@@ -231,6 +232,12 @@ describe('/user/sessions POST', () => {
 });
 
 describe('/users GET', () => {
+  before(function() {
+    clock = sinon.useFakeTimers();
+  });
+  after(function() {
+    clock.restore();
+  });
   it('user list without parameters should be successful', done => {
     successfulLogin()
       .then(loginRes => {
@@ -308,6 +315,23 @@ describe('/users GET', () => {
         })
         .then(() => done());
     });
+  });
+  it('user list with invalid token should fail', done => {
+    successfulLogin()
+      .then(loginRes => {
+        clock.tick(20000);
+        return chai
+          .request(server)
+          .get('/users')
+          .set(sessionManager.HEADER_NAME, loginRes.headers[sessionManager.HEADER_NAME])
+          .catch(err => {
+            err.should.have.status(401);
+            err.response.should.be.json;
+            err.response.body.should.have.property('message');
+            err.response.body.should.have.property('internal_code', 'unauthorized');
+          });
+      })
+      .then(() => done());
   });
 });
 

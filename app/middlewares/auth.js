@@ -1,6 +1,7 @@
 const sessionManager = require('./../services/sessionManager'),
   User = require('../models').user,
-  errors = require('../errors');
+  errors = require('../errors'),
+  tokens = require('./../services/tokens');
 
 exports.secure = (req, res, next) => {
   const auth = req.headers[sessionManager.HEADER_NAME];
@@ -8,12 +9,12 @@ exports.secure = (req, res, next) => {
   if (auth) {
     const user = sessionManager.decode(auth);
 
-    User.findOne({ where: user }).then(u => {
-      if (u) {
+    User.findOne({ where: { email: user.email } }).then(u => {
+      if (u && tokens.isValid(auth)) {
         req.user = u;
         next();
       } else {
-        throw errors.unauthorized();
+        next(errors.unauthorized());
       }
     });
   } else {

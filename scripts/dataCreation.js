@@ -1,5 +1,6 @@
 const User = require('../app/models').user,
-  Album = require('../app/models').album;
+  Album = require('../app/models').album,
+  Config = require('../app/models').configVariables;
 
 exports.execute = async () => {
   const data = [];
@@ -33,7 +34,14 @@ exports.execute = async () => {
     userId: 1,
     title: 'consequatur autem doloribus natus consectetur'
   };
+
+  const expiration = {
+    name: 'expiration',
+    value: '10'
+  };
+
   data.push(await Album.createAlbum(newAlbum1));
   data.push(await Album.createAlbum(newAlbum2));
+  data.push(await Config.createVariable(expiration));
   return Promise.all(data);
 };

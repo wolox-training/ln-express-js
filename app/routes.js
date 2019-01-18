@@ -2,7 +2,8 @@ const users = require('./controllers/users'),
   albums = require('./controllers/albums'),
   validation = require('./middlewares/validation'),
   { check, validationResult } = require('express-validator/check'),
-  auth = require('./middlewares/auth');
+  auth = require('./middlewares/auth'),
+  config = require('./controllers/configVariables');
 
 exports.init = app => {
   app.post('/users', validation.validateResults(validation.validateSignup), users.create);
@@ -34,4 +35,5 @@ exports.init = app => {
     validation.validateResults(validation.validateAlbumBuying),
     albums.buyAlbum
   );
+  app.post('/config', auth.secure, auth.checkAdmin, config.create);
 };
