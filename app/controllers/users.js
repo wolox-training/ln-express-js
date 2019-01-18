@@ -85,11 +85,9 @@ exports.login = (req, res, next) => {
         res.status(200);
         res.set(sessionManager.HEADER_NAME, auth);
         logger.info(`${response.dataValues.email} logged in.`);
-        const responseData = {
-          token: auth,
-          expiresSecondsFromNow: expirationSeconds
-        };
-        res.send(responseData);
+        response.dataValues.token = auth;
+        response.dataValues.expiresSecondsFromNow = expirationSeconds;
+        res.send(response);
       } else {
         next(errors.invalidUser());
       }

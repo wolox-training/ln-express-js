@@ -595,3 +595,71 @@ describe('/users/albums/:id/photos GET', () => {
       .then(() => done());
   });
 });
+
+describe('/users/sessions/invalidate_all POST', () => {
+  it('should fail because user not logged', done => {
+    chai
+      .request(server)
+      .post('/users/sessions/invalidate_all')
+      .catch(err => {
+        err.should.have.status(401);
+        err.response.should.be.json;
+        err.response.body.should.have.property('message');
+        err.response.body.should.have.property('internal_code', 'unauthorized');
+      })
+      .then(() => done());
+  });
+  it(`should be successful, user is logged out and can\'t access /users`, done => {
+    successfulLogin()
+      .then(loginRes => {
+        chai
+          .request(server)
+          .post('/users/sessions/invalidate_all')
+          .set(sessionManager.HEADER_NAME, loginRes.headers[sessionManager.HEADER_NAME])
+          .then(res => {
+            res.should.have.status(200);
+            dictum.chai(res);
+          });
+        return chai
+          .request(server)
+          .get('/users')
+          .set(sessionManager.HEADER_NAME, loginRes.headers[sessionManager.HEADER_NAME])
+          .catch(err => {
+            err.should.have.status(401);
+            err.response.should.be.json;
+            err.response.body.should.have.property('message');
+            err.response.body.should.have.property('internal_code', 'unauthorized');
+          });
+      })
+      .then(() => done());
+  });
+  it(`should be successful, user is logged but another user is still logged in`, done => {
+    successfulAdminLogin().then(loginRes => {
+      chai
+        .request(server)
+        .post('/users/sessions/invalidate_all')
+        .set(sessionManager.HEADER_NAME, loginRes.headers[sessionManager.HEADER_NAME])
+        .then(res => {
+          res.should.have.status(200);
+          dictum.chai(res);
+        });
+      return successfulLogin().then(userLogin => {
+        chai
+          .request(server)
+          .get('/users')
+          .set(sessionManager.HEADER_NAME, userLogin.headers[sessionManager.HEADER_NAME])
+          .then(res => {
+            res.should.have.status(200);
+            res.should.be.json;
+            res.body.should.be.a('array');
+            res.body[0].should.have.property('id');
+            res.body[0].should.have.property('firstName');
+            res.body[0].should.have.property('lastName');
+            res.body[0].should.have.property('email');
+            res.body[0].should.have.property('password');
+            done();
+          });
+      });
+    });
+  });
+});
