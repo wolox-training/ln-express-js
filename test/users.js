@@ -121,7 +121,7 @@ describe('/user/sessions POST', () => {
         res.body.should.have.property('password');
         res.headers.should.have.property(sessionManager.HEADER_NAME);
         const resEmail = sessionManager.decode(res.headers.authorization).email;
-        assert(sampleUser.email === resEmail);
+        chai.expect(sampleUser).to.have.property('email', resEmail);
         dictum.chai(res);
       })
       .then(() => done());
@@ -196,11 +196,12 @@ describe('/users GET', () => {
             res.should.have.status(200);
             res.should.be.json;
             res.body.should.be.a('array');
-            res.body[0].should.have.property('id');
-            res.body[0].should.have.property('firstName');
-            res.body[0].should.have.property('lastName');
-            res.body[0].should.have.property('email');
-            res.body[0].should.have.property('password');
+            const firstElement = res.body[0];
+            firstElement.should.have.property('id');
+            firstElement.should.have.property('firstName');
+            firstElement.should.have.property('lastName');
+            firstElement.should.have.property('email');
+            firstElement.should.have.property('password');
             dictum.chai(res);
           });
       })
@@ -217,12 +218,13 @@ describe('/users GET', () => {
             res.should.have.status(200);
             res.should.be.json;
             res.body.should.be.a('array');
-            res.body[0].should.have.property('id');
-            res.body[0].should.have.property('firstName');
-            res.body[0].should.have.property('lastName');
-            res.body[0].should.have.property('email');
-            res.body[0].should.have.property('password');
-            assert(res.body.length === 2, 'length of array is 2');
+            const firstElement = res.body[0];
+            firstElement.should.have.property('id');
+            firstElement.should.have.property('firstName');
+            firstElement.should.have.property('lastName');
+            firstElement.should.have.property('email');
+            firstElement.should.have.property('password');
+            chai.expect(res.body).to.have.length(2);
             dictum.chai(res);
           });
       })
@@ -239,12 +241,13 @@ describe('/users GET', () => {
             res.should.have.status(200);
             res.should.be.json;
             res.body.should.be.a('array');
-            res.body[0].should.have.property('id', 3);
-            res.body[0].should.have.property('firstName');
-            res.body[0].should.have.property('lastName');
-            res.body[0].should.have.property('email');
-            res.body[0].should.have.property('password');
-            assert(res.body.length === 1, 'length of array is 1');
+            const firstElement = res.body[0];
+            firstElement.should.have.property('id', 3);
+            firstElement.should.have.property('firstName');
+            firstElement.should.have.property('lastName');
+            firstElement.should.have.property('email');
+            firstElement.should.have.property('password');
+            chai.expect(res.body).to.have.length(1);
             dictum.chai(res);
           });
       })
