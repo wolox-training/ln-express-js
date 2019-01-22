@@ -2,7 +2,20 @@ const errors = require('../errors'),
   User = require('../models').user,
   { check, validationResult } = require('express-validator/check');
 
-exports.validateSignup = [
+const createValidation = checks => {
+  return checks.concat([
+    (req, res, next) => {
+      const valErrors = validationResult(req);
+      if (!valErrors.isEmpty()) {
+        return res.json({ errors: valErrors.array() });
+      } else {
+        next();
+      }
+    }
+  ]);
+};
+
+exports.signUpValidation = createValidation([
   check('firstName')
     .not()
     .isEmpty()
@@ -35,9 +48,20 @@ exports.validateSignup = [
     .withMessage(errors.passwordError('Password must be at least 8 characters in length.'))
     .isAlphanumeric()
     .withMessage(errors.passwordError('Password must be alphanumeric'))
-];
+]);
 
-exports.validateSignin = [
+exports.getUsersValidation = createValidation([
+  check('limit')
+    .optional()
+    .isInt({ gt: 0 })
+    .withMessage(errors.invalidParameters('Limit must be an integer greater than 0.')),
+  check('offset')
+    .optional()
+    .isInt({ gt: -1 })
+    .withMessage(errors.invalidParameters('Offset must be an integer greater or equal to 0'))
+]);
+
+exports.signInValidation = createValidation([
   check('email')
     .not()
     .isEmpty()
@@ -51,29 +75,4 @@ exports.validateSignin = [
     .not()
     .isEmpty()
     .withMessage(errors.missingParameters('Password is missing.'))
-];
-
-exports.validateGetUsers = [
-  check('limit')
-    .optional()
-    .isInt({ gt: 0 })
-    .withMessage(errors.invalidParameters('Limit must be an integer greater than 0.')),
-  check('offset')
-    .optional()
-    .isInt({ gt: -1 })
-    .withMessage(errors.invalidParameters('Offset must be an integer greater or equal to 0'))
-];
-
-exports.validateResults = (...validations) => {
-  const allValidations = validations.reduce((accum, value) => [...accum, ...value]);
-  return allValidations.concat([
-    (req, res, next) => {
-      const valErrors = validationResult(req);
-      if (!valErrors.isEmpty()) {
-        return res.json({ errors: valErrors.array() });
-      } else {
-        next();
-      }
-    }
-  ]);
-};
+]);
