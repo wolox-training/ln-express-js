@@ -11,7 +11,9 @@ const express = require('express'),
   logger = require('./app/logger'),
   DEFAULT_BODY_SIZE_LIMIT = 1024 * 1024 * 10,
   DEFAULT_PARAMETER_LIMIT = 10000,
-  validator = require('express-validator');
+  validator = require('express-validator'),
+  graphqlHTTP = require('express-graphql'),
+  schema = require('./app/graphql');
 
 const bodyParserJsonConfig = () => ({
   parameterLimit: config.common.api.parameterLimit || DEFAULT_PARAMETER_LIMIT,
@@ -63,7 +65,13 @@ const init = () => {
         environment: config.common.rollbar.environment || config.environment
       });
       app.use(rollbar.errorHandler());
-
+      app.use(
+        '/',
+        graphqlHTTP(req => ({
+          schema,
+          graphiql: true
+        }))
+      );
       app.listen(process.env.PORT || port);
 
       logger.info(`Listening on port: ${port}`);

@@ -1,5 +1,6 @@
 const errors = require('../errors'),
-  logger = require('../logger');
+  logger = require('../logger'),
+  fetch = require('node-fetch');
 
 module.exports = (sequelize, DataTypes) => {
   const Album = sequelize.define('album', {
@@ -44,6 +45,9 @@ module.exports = (sequelize, DataTypes) => {
     return Album.findOne({ where: { albumId, userId } }).catch(err => {
       throw errors.databaseError(err.detail);
     });
+  };
+  Album.getAllAlbums = () => {
+    return fetch('https://jsonplaceholder.typicode.com/albums').then(response => response.json());
   };
   return Album;
 };
