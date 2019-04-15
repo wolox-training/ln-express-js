@@ -7,6 +7,7 @@ const express = require('express'),
   config = require('./config'),
   routes = require('./app/routes'),
   errors = require('./app/middlewares/errors'),
+  auth = require('./app/middlewares/auth'),
   migrationsManager = require('./migrations'),
   logger = require('./app/logger'),
   DEFAULT_BODY_SIZE_LIMIT = 1024 * 1024 * 10,
@@ -65,6 +66,7 @@ const init = () => {
         environment: config.common.rollbar.environment || config.environment
       });
       app.use(rollbar.errorHandler());
+      app.use(auth.secure);
       app.use(
         '/',
         graphqlHTTP(req => ({
